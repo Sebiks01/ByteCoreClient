@@ -1,7 +1,7 @@
 import { blue, green, yellow, red, magenta } from "chalk";
 import { vice } from "gradient-string";
 
-import { debug as debugEnabled } from "../config.json";
+import { debug as debugEnabled } from "../../config.json";
 import { CommandsTable } from "../typings/Command";
 import { EventsTable } from "../typings/Event";
 

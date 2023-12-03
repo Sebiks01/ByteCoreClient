@@ -7,7 +7,7 @@ import {
   GatewayIntentBits,
 } from "discord.js";
 
-import { coreGuildId, testGuildId } from "../config.json";
+import { coreGuildId, testGuildId } from "../../config.json";
 import { loadFiles, importFile } from "../util/files-loader";
 import { mongoConnect } from "../util/storage-connector";
 import { EventStatus, EventType, EventsTable } from "../typings/Event";
