@@ -12,40 +12,73 @@ export default new Command({
     .setName("custom-bot")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .setDescription("Creates a custom bot to manage a bytecore instance.")
-    .addStringOption((option) =>
-      option.setName("bot-name").setDescription("The name of the bot you want to create.").setRequired(true)
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("create")
+        .setDescription("Creates a custom bot instance.")
+        .addStringOption((option) =>
+          option.setName("bot-name").setDescription("The name of the bot you want to create.").setRequired(true)
+        )
+        .addStringOption((option) =>
+          option.setName("bot-token").setDescription("The token of the bot you want to create.").setRequired(true)
+        )
     )
-    .addStringOption((option) =>
-      option.setName("bot-token").setDescription("The token of the bot you want to create.").setRequired(true)
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("delete")
+        .setDescription("Deletes a custom bot instance.")
+        .addStringOption((option) =>
+          option.setName("bot-name").setDescription("The name of the bot you want to delete.").setRequired(true)
+        )
     ),
 
   execute: async ({ interaction, args }) => {
     await interaction.deferReply({ ephemeral: true });
 
-    const token = args.getString("bot-token") as string;
+    const subcommand = args.getSubcommand() as string;
     const name = args.getString("bot-name") as string;
 
-    const client = new CustomClient({
-      intents: [Guilds, GuildMembers],
-    });
+    if (subcommand === "create") {
+      const token = args.getString("bot-token") as string;
 
-    const clientStarted = await client.start(token, name, interaction);
+      const client = new CustomClient({
+        intents: [Guilds, GuildMembers],
+      });
 
-    if (!clientStarted) return;
+      const clientStarted = await client.start(token, name, interaction);
 
-    await userBotsSchema.updateOne(
-      {
+      if (!clientStarted) return;
+
+      await userBotsSchema.updateOne(
+        {
+          name,
+        },
+        { $set: { name, token } },
+        {
+          new: true,
+          upsert: true,
+        }
+      );
+
+      return await interaction.editReply({
+        content: "Created bot instance.",
+      });
+    }
+
+    if (subcommand === "delete") {
+      const result = await userBotsSchema.findOneAndDelete({
         name,
-      },
-      { $set: { name, token } },
-      {
-        new: true,
-        upsert: true,
-      }
-    );
+      });
 
-    await interaction.editReply({
-      content: "Created bot instance.",
-    });
+      if (!result) {
+        return await interaction.editReply({
+          content: "Bot instance not found.",
+        });
+      }
+
+      return await interaction.editReply({
+        content: "Deleted bot instance.",
+      });
+    }
   },
 });
