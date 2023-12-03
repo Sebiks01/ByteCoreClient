@@ -4,9 +4,11 @@ export enum RequestMethod {
 }
 
 export enum Response {
-    InvalidRequest = -1,
+  InvalidRequest = -1,
 }
 
 export enum ColllectRewardResponse {
-    RewardClaimed = 2
+  Collected = 0,
+  Offline = 1,
+  AlreadyCollected = 2,
 }

@@ -7,9 +7,9 @@ export default new Event({
   name: Events.InteractionCreate,
   
   execute: async (client, interaction) => {
-    if (!interaction.isButton() || !interaction.customId.startsWith("bytecore-discordreward-")) return;
+    if (!interaction.isButton() || !interaction.customId.startsWith("bytecore-discordreward_")) return;
 
-    const instanceId = interaction.customId.split("-").pop();
+    const instanceId = interaction.customId.split("_").pop();
 
     const result = await discordRewardMessagesSchema.findOne({
       token: client.token,
@@ -23,6 +23,7 @@ export default new Event({
     if (!result || !instanceId || !instance) {
       await interaction.reply({
         content: "An error has occurred. Contact an administrator for more information.",
+        ephemeral: true,
       });
 
       return;

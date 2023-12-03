@@ -14,17 +14,16 @@ export default new Event({
   name: Events.InteractionCreate,
 
   execute: async (client, interaction) => {
-    if (!interaction.isModalSubmit() || !interaction.customId.startsWith("bytecore-discordreward-")) return;
+    if (!interaction.isModalSubmit() || !interaction.customId.startsWith("bytecore-discordreward_")) return;
 
     await interaction.deferReply({ ephemeral: true });
 
-    const instanceId = interaction.customId.split("-").pop();
+    const instanceId = interaction.customId.split("_").pop();
     const playerName = interaction.fields.getTextInputValue("input1");
 
     if (!instanceId || !playerName) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "An error has occurred. Contact an administrator for more information.",
-        ephemeral: true,
       });
 
       return;
@@ -52,12 +51,32 @@ export default new Event({
       return;
     }
 
-    if (response === ColllectRewardResponse.RewardClaimed) {
+    if (response === ColllectRewardResponse.Collected) {
       await interaction.editReply({
         content: "You have claimed your reward!",
       });
 
       return;
     }
+
+    if (response === ColllectRewardResponse.AlreadyCollected) {
+      await interaction.editReply({
+        content: "You have already claimed your reward!",
+      });
+
+      return;
+    }
+
+    if (response === ColllectRewardResponse.Offline) {
+      await interaction.editReply({
+        content: "The provided player is offline.",
+      });
+
+      return;
+    }
+
+    await interaction.editReply({
+      content: "An error has occurred. Contact an administrator for more information.",
+    });
   },
 });

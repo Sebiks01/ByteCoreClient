@@ -26,7 +26,9 @@ async function request(method: RequestMethod, url: string): Promise<any> {
 export default {
   user: {
     collectReward: async (byteCoreId: string, playerName: string): Promise<ColllectRewardResponse | Response> => {
-      const response = await request(RequestMethod.Get, `/user/collectReward/${byteCoreId}/${playerName}`);
+      debug(`Collecting reward for ${playerName} with byteCoreId ${byteCoreId}.`);
+
+      const response = await request(RequestMethod.Get, `/user/collectReward/${byteCoreId}/${playerName}}`);
 
       if (!response || response.status !== 200) return Response.InvalidRequest;
 
