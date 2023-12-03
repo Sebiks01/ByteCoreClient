@@ -210,7 +210,7 @@ export default new Command({
         }
 
         const button = new ButtonBuilder()
-          .setCustomId(`bytecore-discordreward-${attachedByteCoreInstances[i].instanceId}`)
+          .setCustomId(`bytecore-discordreward_${attachedByteCoreInstances[i].instanceId}`)
           .setStyle(ButtonStyle[attachedByteCoreInstances[i].style])
           .setLabel(attachedByteCoreInstances[i].label);
 
@@ -276,7 +276,7 @@ export default new Command({
         }
 
         const button = new ButtonBuilder()
-          .setCustomId(`bytecore-discordreward-${filtered[i].instanceId}`)
+          .setCustomId(`bytecore-discordreward_${filtered[i].instanceId}`)
           .setStyle(ButtonStyle[filtered[i].style])
           .setLabel(filtered[i].label);
 
@@ -294,10 +294,10 @@ export default new Command({
         components: components,
       });
 
-      await rewardMessage.updateOne(
+      await discordRewardMessagesSchema.updateOne(
         { token: client.token, guildId: interaction.guildId },
         {
-          attachedByteCoreInstances: filtered,
+          $set: { attachedByteCoreInstances: filtered },
         }
       );
 
