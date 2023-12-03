@@ -5,6 +5,7 @@ import {
   ClientEvents,
   ClientOptions,
   GatewayIntentBits,
+  TextChannel,
 } from "discord.js";
 
 import { coreGuildId, testGuildId } from "../../config.json";
@@ -15,6 +16,7 @@ import { CommandScope, CommandStatus, CommandType, CommandsTable } from "../typi
 import { byteCore, info, warn, error, debug, timerStart, timerEnd, table } from "../util/logger";
 import { CustomClient } from "./CustomClient";
 import userBotsSchema, { UserBots } from "../models/user-bots";
+import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/discord-reward-messages";
 import api from "../api";
 
 const { Guilds, GuildMembers } = GatewayIntentBits;
@@ -227,6 +229,48 @@ export class ByteCoreClient extends Client {
 
     info(`Started ${customClientCounter} custom client(s).`);
     timerEnd("Loaded custom clients in");
+  }
+
+  public async validateDatabase() {
+    info("Validating database...");
+    timerStart("Validated database in");
+
+    const discordRewardMessages: DiscordRewardMessages[] = await discordRewardMessagesSchema.find({ token: this.token });
+
+    debug(`Found ${discordRewardMessages.length} discord reward message(s).`);
+
+    let discordRewardMessageCounter = 0;
+
+    for (const discordRewardMessage of discordRewardMessages) {
+      const guild = await this.guilds.fetch(discordRewardMessage.guildId);
+
+      if (!guild) {
+        await discordRewardMessagesSchema.deleteOne({ guildId: discordRewardMessage.guildId });
+        debug(`Deleted discord reward message with guild ID "${discordRewardMessage.guildId}".`);
+        continue;
+      }
+
+      const channel = await guild.channels.fetch(discordRewardMessage.channelId);
+
+      if (!channel) {
+        await discordRewardMessagesSchema.deleteOne({ channelId: discordRewardMessage.channelId });
+        debug(`Deleted discord reward message with channel ID "${discordRewardMessage.channelId}".`);
+        continue;
+      }
+
+      const message = await (channel as TextChannel).messages.fetch(discordRewardMessage.messageId);
+
+      if (!message) {
+        await discordRewardMessagesSchema.deleteOne({ messageId: discordRewardMessage.messageId });
+        debug(`Deleted discord reward message with message ID "${discordRewardMessage.messageId}".`);
+        continue;
+      }
+
+      discordRewardMessageCounter++;
+    }
+
+    debug(`Validated ${discordRewardMessageCounter} discord reward message(s).`);
+    timerEnd("Validated database in");
   }
 
   public get commands() {

@@ -5,12 +5,14 @@ import {
   ClientEvents,
   ClientOptions,
   ChatInputCommandInteraction,
+  TextChannel,
 } from "discord.js";
 
 import { loadFiles, importFile } from "../util/files-loader";
 import { EventType } from "../typings/Event";
 import { CommandType } from "../typings/Command";
 import { info, warn, debug } from "../util/logger";
+import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/discord-reward-messages";
 import api from "../api";
 
 export class CustomClient extends Client {
@@ -95,6 +97,45 @@ export class CustomClient extends Client {
     }
 
     debug(`Registered global commands in ${clientGuilds.size} guild(s). (${this.token})`);
+  }
+
+  public async validateDatabase() {
+    const discordRewardMessages: DiscordRewardMessages[] = await discordRewardMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Found ${discordRewardMessages.length} discord reward message(s).`);
+
+    let discordRewardMessageCounter = 0;
+
+    for (const discordRewardMessage of discordRewardMessages) {
+      const guild = await this.guilds.fetch(discordRewardMessage.guildId);
+
+      if (!guild) {
+        await discordRewardMessagesSchema.deleteOne({ guildId: discordRewardMessage.guildId });
+        continue;
+      }
+
+      const channel = await guild.channels.fetch(discordRewardMessage.channelId);
+
+      if (!channel) {
+        await discordRewardMessagesSchema.deleteOne({ channelId: discordRewardMessage.channelId });
+        continue;
+      }
+
+      const message = await (channel as TextChannel).messages.fetch(discordRewardMessage.messageId);
+
+      if (!message) {
+        await discordRewardMessagesSchema.deleteOne({ messageId: discordRewardMessage.messageId });
+        continue;
+      }
+
+      discordRewardMessageCounter++;
+    }
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Validated ${discordRewardMessageCounter} discord reward message(s).`);
   }
 
   public get name() {

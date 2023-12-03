@@ -26,5 +26,8 @@ export default new Event({
     if (client instanceof ByteCoreClient) {
       await client.loadCustomClients();
     }
+
+    // Database validation
+    await client.validateDatabase();
   },
 });
