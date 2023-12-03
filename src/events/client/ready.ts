@@ -1,0 +1,30 @@
+import { Events } from "discord.js";
+
+import { Event } from "../../structures/Event";
+import { info, success, debug } from "../../util/logger";
+import { ByteCoreClient } from "../../structures/ByteCoreClient";
+
+export default new Event({
+  name: Events.ClientReady,
+  once: true,
+  
+  execute: async (client) => {
+    // Logging that the client is ready
+    if (client instanceof ByteCoreClient) {
+      success("The client is now ready.");
+
+      debug(`Logged in as ${client.user?.tag}.`);
+      debug(`Client ID: ${client.user?.id}.`);
+      debug(`Guilds: ${(await client.guilds.fetch()).size}.`);
+    } else {
+      info(`Custom client "${client.name}" is now ready.`);
+    }
+
+    // Loading client commands
+    await client.loadCommands();
+
+    if (client instanceof ByteCoreClient) {
+      await client.loadCustomClients();
+    }
+  },
+});
