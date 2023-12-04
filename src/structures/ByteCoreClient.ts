@@ -288,7 +288,9 @@ export class ByteCoreClient extends Client {
     for (const rewardResponseMessage of rewardResponseMessages) {
       const guild = await this.guilds.fetch(rewardResponseMessage.guildId);
 
-      if (!guild) {
+      const { alreadyCollected, collected, offline } = rewardResponseMessage;
+
+      if (!guild || (!alreadyCollected && !collected && !offline)) {
         await rewardResponseMessagesSchema.deleteOne({ guildId: rewardResponseMessage.guildId });
         debug(`Deleted reward response messages for guild with ID "${rewardResponseMessage.guildId}".`);
         continue;

@@ -74,7 +74,7 @@ export default new Command({
       );
 
       return await interaction.editReply({
-        content: `Successfully set the \`${args.getString("message-type")} message .`,
+        content: `Successfully set the ${args.getString("message-type")} message.`,
       });
     }
 
@@ -88,7 +88,7 @@ export default new Command({
       );
 
       return await interaction.editReply({
-        content: `Successfully reset the \`${args.getString("message-type")} message .`,
+        content: `Successfully reset the ${args.getString("message-type")} message.`,
       });
     }
 

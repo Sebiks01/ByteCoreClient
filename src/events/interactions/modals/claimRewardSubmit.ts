@@ -61,13 +61,13 @@ export default new Event({
     const alreadyCollectedDefault = { content: "You have already claimed your reward!" };
     const offlineDefault = { content: "The provided player is offline." };
 
-    const collected = result ? (result.collected ? result.collected : collectedDefault) : collectedDefault;
+    const collected = result ? (result.collected ? JSON.parse(result.collected) : collectedDefault) : collectedDefault;
     const alreadyCollected = result
       ? result.alreadyCollected
-        ? result.alreadyCollected
+        ? JSON.parse(result.alreadyCollected)
         : alreadyCollectedDefault
       : alreadyCollectedDefault;
-    const offline = result ? (result.offline ? result.offline : offlineDefault) : offlineDefault;
+    const offline = result ? (result.offline ? JSON.parse(result.offline) : offlineDefault) : offlineDefault;
 
     if (response === ColllectRewardResponse.Collected) {
       await interaction.editReply(collected);
