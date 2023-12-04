@@ -7,6 +7,7 @@ import {
   EmbedBuilder,
   GuildTextBasedChannel,
   JSONEncodable,
+  PermissionFlagsBits,
   SlashCommandBuilder,
 } from "discord.js";
 
@@ -17,6 +18,7 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setName("discord-reward")
     .setDescription("Manages discord rewards.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("send-message")
