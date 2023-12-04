@@ -1,4 +1,12 @@
-import { PermissionFlagsBits, SlashCommandBuilder, GatewayIntentBits } from "discord.js";
+import {
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  GatewayIntentBits,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} from "discord.js";
 
 import { Command } from "../../structures/Command";
 import { CustomClient } from "../../structures/CustomClient";
@@ -30,22 +38,23 @@ export default new Command({
         .addStringOption((option) =>
           option.setName("bot-name").setDescription("The name of the bot you want to delete.").setRequired(true)
         )
-    ),
+    )
+    .addSubcommand((subcommand) => subcommand.setName("list").setDescription("Lists custom bots.")),
 
-  execute: async ({ interaction, args }) => {
+  execute: async ({ interaction, args, client }) => {
     await interaction.deferReply({ ephemeral: true });
 
     const subcommand = args.getSubcommand() as string;
-    const name = args.getString("bot-name") as string;
 
     if (subcommand === "create") {
       const token = args.getString("bot-token") as string;
+      const name = args.getString("bot-name") as string;
 
-      const client = new CustomClient({
+      const customClient = new CustomClient({
         intents: [Guilds, GuildMembers],
       });
 
-      const clientStarted = await client.start(token, name, interaction);
+      const clientStarted = await customClient.start(token, name, interaction);
 
       if (!clientStarted) return;
 
@@ -60,12 +69,16 @@ export default new Command({
         }
       );
 
+      client.customClients.set(name, customClient);
+
       return await interaction.editReply({
         content: "Created bot instance.",
       });
     }
 
     if (subcommand === "delete") {
+      const name = args.getString("bot-name") as string;
+
       const result = await userBotsSchema.findOneAndDelete({
         name,
       });
@@ -76,8 +89,53 @@ export default new Command({
         });
       }
 
+      client.customClients.delete(name);
+
       return await interaction.editReply({
         content: "Deleted bot instance.",
+      });
+    }
+
+    if (subcommand === "list") {
+      const { customClients } = client;
+
+      const runningCustomClients = customClients.filter((customClient) => customClient.running);
+
+      let description = `**Loaded:** ${customClients.size} |  **Running:** ${runningCustomClients.size}\n`;
+
+      for (let i = 0; i < 5 && i < customClients.size; i++) {
+        description += `\`\`\`\nName: ${customClients.at(i)?.name}\nToken: ${customClients.at(i)?.token}\nRunning: ${
+          customClients.at(i)?.running
+        }\n\`\`\``;
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle("Custom Bots List")
+        .setDescription(description)
+        .setColor(16121600)
+        .setFooter({
+          text: `ByteCore@2023`,
+          iconURL: client.user?.displayAvatarURL(),
+        });
+
+      if (customClients.size > 5) {
+        const components = new ActionRowBuilder<ButtonBuilder>().setComponents(
+          new ButtonBuilder()
+            .setCustomId(`bytecore-custombots-list-0`)
+            .setEmoji("⬅️")
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(true),
+          new ButtonBuilder().setCustomId(`bytecore-custombots-list-2`).setEmoji("➡️").setStyle(ButtonStyle.Secondary)
+        );
+
+        return await interaction.editReply({
+          embeds: [embed],
+          components: [components],
+        });
+      }
+
+      return await interaction.editReply({
+        embeds: [embed],
       });
     }
   },

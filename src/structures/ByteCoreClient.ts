@@ -22,8 +22,9 @@ import api from "../api";
 const { Guilds, GuildMembers } = GatewayIntentBits;
 
 export class ByteCoreClient extends Client {
-  private _commands: Collection<string, CommandType> = new Collection();
+  private _commands: Collection<string, CommandType<boolean>> = new Collection();
   private _events: EventType<keyof ClientEvents>[] = new Array();
+  private _customClients: Collection<string, CustomClient> = new Collection();
   private _api = api;
 
   constructor(options: ClientOptions) {
@@ -124,7 +125,7 @@ export class ByteCoreClient extends Client {
 
     for (const commandFilePath of commandFilePaths) {
       try {
-        const command: CommandType = await importFile(commandFilePath);
+        const command: CommandType<boolean> = await importFile(commandFilePath);
 
         if (command.testOnly) testOnlyCommands.push(command.data.toJSON());
         else if (command.coreOnly) coreOnlyCommands.push(command.data.toJSON());
@@ -225,6 +226,8 @@ export class ByteCoreClient extends Client {
         customClientCounter++;
         debug(`Started custom client with token "${customClientToken.token}".`);
       }
+
+      this._customClients.set(customClientToken.name, customClient);
     }
 
     info(`Started ${customClientCounter} custom client(s).`);
@@ -235,7 +238,9 @@ export class ByteCoreClient extends Client {
     info("Validating database...");
     timerStart("Validated database in");
 
-    const discordRewardMessages: DiscordRewardMessages[] = await discordRewardMessagesSchema.find({ token: this.token });
+    const discordRewardMessages: DiscordRewardMessages[] = await discordRewardMessagesSchema.find({
+      token: this.token,
+    });
 
     debug(`Found ${discordRewardMessages.length} discord reward message(s).`);
 
@@ -279,6 +284,10 @@ export class ByteCoreClient extends Client {
 
   public get events() {
     return this._events;
+  }
+
+  public get customClients() {
+    return this._customClients;
   }
 
   public get api() {

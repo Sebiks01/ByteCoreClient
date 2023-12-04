@@ -17,7 +17,8 @@ import api from "../api";
 
 export class CustomClient extends Client {
   private _name: string = "";
-  private _commands: Collection<string, CommandType> = new Collection();
+  private _running: boolean = false;
+  private _commands: Collection<string, CommandType<boolean>> = new Collection();
   private _events: EventType<keyof ClientEvents>[] = new Array();
   private _api = api;
 
@@ -47,6 +48,8 @@ export class CustomClient extends Client {
     });
 
     await this.loadEvents();
+
+    this._running = true;
 
     return true;
   }
@@ -78,7 +81,7 @@ export class CustomClient extends Client {
 
     for (const commandFilePath of commandFilePaths) {
       try {
-        const command: CommandType = await importFile(commandFilePath);
+        const command: CommandType<boolean> = await importFile(commandFilePath);
 
         if (command.coreOnly || command.testOnly) continue;
 
@@ -140,6 +143,10 @@ export class CustomClient extends Client {
 
   public get name() {
     return this._name;
+  }
+
+  public get running() {
+    return this._running;
   }
 
   public get commands() {
