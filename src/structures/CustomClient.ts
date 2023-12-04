@@ -13,6 +13,7 @@ import { EventType } from "../typings/Event";
 import { CommandType } from "../typings/Command";
 import { info, warn, debug } from "../util/logger";
 import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/discord-reward-messages";
+import rewardResponseMessagesSchema, { RewardResponseMessages } from "../models/reward-response-messages";
 import api from "../api";
 
 export class CustomClient extends Client {
@@ -141,6 +142,29 @@ export class CustomClient extends Client {
 
     debug(`Client: ${this._name} (${this.token})`);
     debug(`Validated ${discordRewardMessageCounter} discord reward message(s).`);
+
+    const rewardResponseMessages: RewardResponseMessages[] = await rewardResponseMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Found ${rewardResponseMessages.length} reward response message(s).`);
+
+    let rewardResponseMessagesCounter = 0;
+
+    for (const rewardResponseMessage of rewardResponseMessages) {
+      const guild = await this.guilds.fetch(rewardResponseMessage.guildId);
+
+      if (!guild) {
+        await rewardResponseMessagesSchema.deleteOne({ guildId: rewardResponseMessage.guildId });
+        continue;
+      }
+
+      rewardResponseMessagesCounter++;
+    }
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Validated ${rewardResponseMessagesCounter} reward response message(s).`);
   }
 
   public get name() {

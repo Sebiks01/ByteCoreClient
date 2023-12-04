@@ -17,6 +17,7 @@ import { byteCore, info, warn, error, debug, timerStart, timerEnd, table } from 
 import { CustomClient } from "./CustomClient";
 import userBotsSchema, { UserBots } from "../models/user-bots";
 import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/discord-reward-messages";
+import rewardResponseMessagesSchema, { RewardResponseMessages } from "../models/reward-response-messages";
 import api from "../api";
 
 const { Guilds, GuildMembers } = GatewayIntentBits;
@@ -275,6 +276,29 @@ export class ByteCoreClient extends Client {
     }
 
     debug(`Validated ${discordRewardMessageCounter} discord reward message(s).`);
+
+    const rewardResponseMessages: RewardResponseMessages[] = await rewardResponseMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Found ${rewardResponseMessages.length} reward response message(s).`);
+
+    let rewardResponseMessagesCounter = 0;
+
+    for (const rewardResponseMessage of rewardResponseMessages) {
+      const guild = await this.guilds.fetch(rewardResponseMessage.guildId);
+
+      if (!guild) {
+        await rewardResponseMessagesSchema.deleteOne({ guildId: rewardResponseMessage.guildId });
+        debug(`Deleted reward response messages for guild with ID "${rewardResponseMessage.guildId}".`);
+        continue;
+      }
+
+      rewardResponseMessagesCounter++;
+    }
+
+    debug(`Validated ${rewardResponseMessagesCounter} reward response message(s).`);
+
     timerEnd("Validated database in");
   }
 
