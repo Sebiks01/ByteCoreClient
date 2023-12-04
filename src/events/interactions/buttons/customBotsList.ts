@@ -54,9 +54,10 @@ export default new Event({
         .setDisabled(page == Math.ceil(customClients.size / 5) ? true : false)
     );
 
-    await interaction.message.edit({
+    await interaction.followUp({
       embeds: [embed],
       components: [components],
+      ephemeral: true,
     });
 
     return;

@@ -36,6 +36,8 @@ export class CustomClient extends Client {
       warn("Invalid intents or token for custom client. Enter debugging mode for more information.");
       debug(err);
 
+      this.token = token;
+
       if (interaction) {
         await interaction.editReply({
           content: "Invalid token/intents provided for custom client.",
