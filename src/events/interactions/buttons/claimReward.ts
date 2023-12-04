@@ -5,7 +5,7 @@ import discordRewardMessagesSchema, { DiscordRewardMessages } from "../../../mod
 
 export default new Event({
   name: Events.InteractionCreate,
-  
+
   execute: async (client, interaction) => {
     if (!interaction.isButton() || !interaction.customId.startsWith("bytecore-discordreward_")) return;
 
@@ -15,6 +15,17 @@ export default new Event({
       token: client.token,
       guildId: interaction.guildId,
     });
+
+    if (!result) {
+      await interaction.reply({
+        content: "An error has occurred. Contact an administrator for more information.",
+        ephemeral: true,
+      });
+
+      await interaction.message.delete();
+
+      return;
+    }
 
     const instance = (result as DiscordRewardMessages).attachedByteCoreInstances.find(
       (i) => i.instanceId === instanceId
