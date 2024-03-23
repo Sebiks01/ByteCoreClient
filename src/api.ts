@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { error, debug } from "./util/logger";
-import { ColllectRewardResponse, RequestMethod, Response } from "./typings/api";
+import { ColllectRewardResponse, LinkInstanceResponse, MessagesToSend, RequestMethod, Response } from "./typings/api";
 
 async function request(method: RequestMethod, url: string): Promise<any> {
   if (!process.env.API_URL) {
@@ -33,6 +33,43 @@ export default {
       if (!response || response.status !== 200) return Response.InvalidRequest;
 
       return response.data as ColllectRewardResponse | Response;
+    },
+  },
+
+  system: {
+    messagesToSend: async (): Promise<MessagesToSend | Response> => {
+      debug("Fetching messages.");
+
+      if (!process.env.API_TOKEN) {
+        error("API_TOKEN is not set. Skipping request.");
+        debug(`API_TOKEN: ${process.env.API_URL}`);
+        return Response.InvalidRequest;
+      }
+
+      const response = await request(RequestMethod.Get, `/system/messagesToSend/${process.env.API_TOKEN}`);
+
+      if (!response || response.status !== 200) return Response.InvalidRequest;
+
+      return response.data as MessagesToSend | Response;
+    },
+
+    linkInstance: async (instanceId: string, botName: string): Promise<LinkInstanceResponse | Response> => {
+      debug(`Linking instance with id ${instanceId}.`);
+
+      if (!process.env.API_TOKEN) {
+        error("API_TOKEN is not set. Skipping request.");
+        debug(`API_TOKEN: ${process.env.API_URL}`);
+        return Response.InvalidRequest;
+      }
+
+      const response = await request(
+        RequestMethod.Get,
+        `/system/linkInstance/${process.env.API_TOKEN}/${instanceId}/${botName}`
+      );
+
+      if (!response || response.status !== 200) return Response.InvalidRequest;
+
+      return response.data as LinkInstanceResponse | Response;
     },
   },
 };

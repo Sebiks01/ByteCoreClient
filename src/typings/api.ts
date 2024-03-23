@@ -12,3 +12,13 @@ export enum ColllectRewardResponse {
   Offline = 1,
   AlreadyCollected = 2,
 }
+
+export type MessagesToSend = [
+  {
+    "core-id": string;
+    "channel-id": string;
+    "message-json": string;
+  }
+];
+
+export type LinkInstanceResponse = String;
