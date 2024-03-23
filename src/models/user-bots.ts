@@ -8,11 +8,13 @@ const reqString = {
 const userBotsSchema = new Schema({
   name: reqString,
   token: reqString,
+  attachedInstances: [String],
 });
 
 export type UserBots = {
   name: string;
   token: string;
+  attachedInstances: string[] | null;
 };
 
 const name = "user-bots";
