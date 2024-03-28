@@ -96,14 +96,14 @@ export default new Command({
     const focusedOption = interaction.options.getFocused(true);
     const subCommand = interaction.options.getSubcommand();
 
-    const choices: string[] = [];
+    let choices: string[] = [];
 
     if (subCommand === "detach" && focusedOption.name === "instance-id") {
       const customClientSettings: UserBots | null = await userBotsSchema.findOne({ token: client.token });
 
       if (!customClientSettings) return await interaction.respond([]);
 
-      choices.concat(customClientSettings.attachedInstances || []);
+      choices = choices.concat(customClientSettings.attachedInstances || []);
     }
 
     const filtered = choices.filter((choice) => choice.startsWith(focusedOption.value));
