@@ -13,6 +13,7 @@ import {
 
 import { Command } from "../../structures/Command";
 import discordRewardMessagesSchema, { DiscordRewardMessages } from "../../models/discord-reward-messages";
+import userBotsSchema, { UserBots } from "../../models/user-bots";
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -42,7 +43,11 @@ export default new Command({
         .setName("add")
         .setDescription("Add bytecore instance.")
         .addStringOption((option) =>
-          option.setName("instance-id").setDescription("ByteCore instance id.").setRequired(true)
+          option
+            .setName("instance-id")
+            .setDescription("ByteCore instance id (earlier verified).")
+            .setRequired(true)
+            .setAutocomplete(true)
         )
         .addStringOption((option) =>
           option
@@ -85,7 +90,7 @@ export default new Command({
         .setName("remove")
         .setDescription("Remove bytecore instance.")
         .addStringOption((option) =>
-          option.setName("instance-id").setDescription("ByteCore instance id.").setRequired(true)
+          option.setName("instance-id").setDescription("ByteCore instance id.").setRequired(true).setAutocomplete(true)
         )
     ),
 
@@ -172,6 +177,16 @@ export default new Command({
 
       if (attachedByteCoreInstances.length == 25) {
         return await interaction.editReply({ content: "You can only attach 25 instances." });
+      }
+
+      const userBot = await userBotsSchema.findOne({ token: client.token });
+
+      if (!userBot) {
+        return await interaction.editReply({ content: "Internal error." });
+      }
+
+      if (!(userBot as UserBots).attachedInstances?.includes(instanceId)) {
+        return await interaction.editReply({ content: "Instance not verified." });
       }
 
       if (attachedByteCoreInstances.find((instance) => instance.instanceId === instanceId)) {
@@ -305,5 +320,40 @@ export default new Command({
 
       return await interaction.editReply({ content: "Instance removed successfully." });
     }
+  },
+
+  autocomplete: async ({ interaction, client }) => {
+    const focusedOption = interaction.options.getFocused(true);
+    const subCommand = interaction.options.getSubcommand();
+
+    let choices: string[] = [];
+
+    const rewardMessage: DiscordRewardMessages | null = await discordRewardMessagesSchema.findOne({
+      token: client.token,
+      guildId: interaction.guildId,
+    });
+
+    const userBot: UserBots | null = await userBotsSchema.findOne({ token: client.token });
+
+    if (!rewardMessage) return await interaction.respond([]);
+    if (!userBot) return await interaction.respond([]);
+
+    const attachedByteCoreInstances = (rewardMessage as DiscordRewardMessages).attachedByteCoreInstances;
+
+    if (subCommand === "add" && focusedOption.name === "instance-id") {
+      choices = choices.concat(
+        userBot.attachedInstances?.filter(
+          (instance) => !attachedByteCoreInstances.map((instance) => instance.instanceId).includes(instance)
+        ) || []
+      );
+    }
+
+    if (subCommand === "remove" && focusedOption.name === "instance-id") {
+      choices = choices.concat(rewardMessage.attachedByteCoreInstances.map((instance) => instance.instanceId));
+    }
+
+    const filtered = choices.filter((choice) => choice.startsWith(focusedOption.value));
+
+    await interaction.respond(filtered.map((choice) => ({ name: choice, value: choice })));
   },
 });
