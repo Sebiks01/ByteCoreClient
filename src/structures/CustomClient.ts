@@ -14,6 +14,8 @@ import { CommandType } from "../typings/Command";
 import { info, warn, debug } from "../util/logger";
 import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/discord-reward-messages";
 import rewardResponseMessagesSchema, { RewardResponseMessages } from "../models/reward-response-messages";
+import boostRewardMessagesSchema, { BoostRewardMessages } from "../models/boost-reward-messages";
+import boostResponseMessagesSchema, { BoostResponseMessages } from "../models/boost-response-messages";
 import api from "../api";
 
 export class CustomClient extends Client {
@@ -28,7 +30,7 @@ export class CustomClient extends Client {
   }
 
   public async start(token: string, name: string, interaction?: ChatInputCommandInteraction): Promise<boolean> {
-    info(`Initializing cutom client "${name}". (${token})`);
+    info(`Initializing cutom client "${name}".`);
 
     this._name = name;
 
@@ -167,6 +169,70 @@ export class CustomClient extends Client {
 
     debug(`Client: ${this._name} (${this.token})`);
     debug(`Validated ${rewardResponseMessagesCounter} reward response message(s).`);
+
+    // ---------------
+
+    const boostRewardMessages: BoostRewardMessages[] = await boostRewardMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Found ${boostRewardMessages.length} boost reward message(s).`);
+
+    let boostRewardMessageCounter = 0;
+
+    for (const boostRewardMessage of boostRewardMessages) {
+      const guild = await this.guilds.fetch(boostRewardMessage.guildId);
+
+      if (!guild) {
+        await boostRewardMessagesSchema.deleteOne({ guildId: boostRewardMessage.guildId });
+        continue;
+      }
+
+      const channel = await guild.channels.fetch(boostRewardMessage.channelId);
+
+      if (!channel) {
+        await boostRewardMessagesSchema.deleteOne({ channelId: boostRewardMessage.channelId });
+        continue;
+      }
+
+      const message = await (channel as TextChannel).messages.fetch(boostRewardMessage.messageId);
+
+      if (!message) {
+        await boostRewardMessagesSchema.deleteOne({ messageId: boostRewardMessage.messageId });
+        continue;
+      }
+
+      boostRewardMessageCounter++;
+    }
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Validated ${boostRewardMessageCounter} boost reward message(s).`);
+
+    const boostResponseMessages: BoostResponseMessages[] = await boostResponseMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Found ${boostResponseMessages.length} boost response message(s).`);
+
+    let boostResponseMessagesCounter = 0;
+
+    for (const boostResponseMessage of boostResponseMessages) {
+      const guild = await this.guilds.fetch(boostResponseMessage.guildId);
+
+      const { cooldown, collected, offline, disabled } = boostResponseMessage;
+
+      if (!guild || (!cooldown && !collected && !offline && !disabled)) {
+        await boostResponseMessagesSchema.deleteOne({ guildId: boostResponseMessage.guildId });
+        continue;
+      }
+
+      boostResponseMessagesCounter++;
+    }
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Validated ${boostResponseMessagesCounter} boost response message(s).`);
   }
 
   public get name() {

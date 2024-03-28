@@ -18,6 +18,8 @@ import { CustomClient } from "./CustomClient";
 import userBotsSchema, { UserBots } from "../models/user-bots";
 import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/discord-reward-messages";
 import rewardResponseMessagesSchema, { RewardResponseMessages } from "../models/reward-response-messages";
+import boostRewardMessagesSchema, { BoostRewardMessages } from "../models/boost-reward-messages";
+import boostResponseMessagesSchema, { BoostResponseMessages } from "../models/boost-response-messages";
 import api from "../api";
 
 const { Guilds, GuildMembers } = GatewayIntentBits;
@@ -175,7 +177,7 @@ export class ByteCoreClient extends Client {
 
       if (guild.id === coreGuildId) {
         if (guild.id === testGuildId) {
-          await guild.commands.set(coreOnlyCommands.concat(testOnlyCommands.concat(globalCommands)));
+          await guild.commands.set(coreOnlyCommands.concat(testOnlyCommands));
           debug(`Registered test/core command(s) in guild "${guild.id}".`);
           testGuildCounter++;
           coreGuildCounter++;
@@ -189,7 +191,7 @@ export class ByteCoreClient extends Client {
       }
 
       if (guild.id === testGuildId) {
-        await guild.commands.set(testOnlyCommands.concat(globalCommands));
+        await guild.commands.set(testOnlyCommands);
         debug(`Registered test command(s) in guild "${guild.id}".`);
         testGuildCounter++;
         continue;
@@ -300,6 +302,68 @@ export class ByteCoreClient extends Client {
     }
 
     debug(`Validated ${rewardResponseMessagesCounter} reward response message(s).`);
+
+    const boostRewardMessages: BoostRewardMessages[] = await boostRewardMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Found ${boostRewardMessages.length} boost reward message(s).`);
+
+    let boostRewardMessageCounter = 0;
+
+    for (const boostRewardMessage of boostRewardMessages) {
+      const guild = await this.guilds.fetch(boostRewardMessage.guildId);
+
+      if (!guild) {
+        await boostRewardMessagesSchema.deleteOne({ guildId: boostRewardMessage.guildId });
+        debug(`Deleted boost reward message with guild ID "${boostRewardMessage.guildId}".`);
+        continue;
+      }
+
+      const channel = await guild.channels.fetch(boostRewardMessage.channelId);
+
+      if (!channel) {
+        await boostRewardMessagesSchema.deleteOne({ channelId: boostRewardMessage.channelId });
+        debug(`Deleted boost reward message with channel ID "${boostRewardMessage.channelId}".`);
+        continue;
+      }
+
+      const message = await (channel as TextChannel).messages.fetch(boostRewardMessage.messageId);
+
+      if (!message) {
+        await boostRewardMessagesSchema.deleteOne({ messageId: boostRewardMessage.messageId });
+        debug(`Deleted boost reward message with message ID "${boostRewardMessage.messageId}".`);
+        continue;
+      }
+
+      boostRewardMessageCounter++;
+    }
+
+    debug(`Validated ${boostRewardMessageCounter} boost reward message(s).`);
+
+    const boostResponseMessages: BoostResponseMessages[] = await boostResponseMessagesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Found ${boostResponseMessages.length} boost response message(s).`);
+
+    let boostResponseMessagesCounter = 0;
+
+    for (const boostResponseMessage of boostResponseMessages) {
+      const guild = await this.guilds.fetch(boostResponseMessage.guildId);
+
+      const { cooldown, collected, offline, disabled } = boostResponseMessage;
+
+      if (!guild || (!cooldown && !collected && !offline && !disabled)) {
+        await boostResponseMessagesSchema.deleteOne({ guildId: boostResponseMessage.guildId });
+        debug(`Deleted boost response messages for guild with ID "${boostResponseMessage.guildId}".`);
+        continue;
+      }
+
+      boostResponseMessagesCounter++;
+    }
+
+    debug(`Validated ${boostResponseMessagesCounter} boost response message(s).`);
 
     timerEnd("Validated database in");
   }

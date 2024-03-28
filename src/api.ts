@@ -1,7 +1,14 @@
 import axios from "axios";
 
 import { error, debug } from "./util/logger";
-import { ColllectRewardResponse, LinkInstanceResponse, MessagesToSend, RequestMethod, Response } from "./typings/api";
+import {
+  CollectBoostRewardResponse,
+  CollectRewardResponse,
+  LinkInstanceResponse,
+  MessagesToSend,
+  RequestMethod,
+  Response,
+} from "./typings/api";
 
 async function request(method: RequestMethod, url: string): Promise<any> {
   if (!process.env.API_URL) {
@@ -25,14 +32,36 @@ async function request(method: RequestMethod, url: string): Promise<any> {
 
 export default {
   user: {
-    collectReward: async (byteCoreId: string, playerName: string): Promise<ColllectRewardResponse | Response> => {
+    collectReward: async (byteCoreId: string, playerName: string): Promise<CollectRewardResponse | Response> => {
       debug(`Collecting reward for ${playerName} with byteCoreId ${byteCoreId}.`);
 
       const response = await request(RequestMethod.Get, `/user/collectReward/${byteCoreId}/${playerName}`);
 
       if (!response || response.status !== 200) return Response.InvalidRequest;
 
-      return response.data as ColllectRewardResponse | Response;
+      return response.data as CollectRewardResponse | Response;
+    },
+
+    collectBoostReward: async (
+      byteCoreId: string,
+      playerName: string
+    ): Promise<CollectBoostRewardResponse | Response> => {
+      debug(`Collecting boost reward for ${playerName} with byteCoreId ${byteCoreId}.`);
+
+      if (!process.env.API_TOKEN) {
+        error("API_TOKEN is not set. Skipping request.");
+        debug(`API_TOKEN: ${process.env.API_URL}`);
+        return Response.InvalidRequest;
+      }
+
+      const response = await request(
+        RequestMethod.Get,
+        `/user/collectBoostReward/${process.env.API_TOKEN}/${byteCoreId}/${playerName}`
+      );
+
+      if (!response || response.status !== 200) return Response.InvalidRequest;
+
+      return response.data as CollectBoostRewardResponse | Response;
     },
   },
 
