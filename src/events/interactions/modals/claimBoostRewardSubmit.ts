@@ -26,7 +26,7 @@ export default new Event({
 
     if (!member) {
       await interaction.editReply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
       });
 
       return;
@@ -34,7 +34,7 @@ export default new Event({
 
     if (!member.premiumSince) {
       await interaction.editReply({
-        content: "You need to be a Nitro Booster to claim this reward.",
+        content: "Musisz być Nitro Boosterem, aby odebrać tę nagrodę.",
       });
 
       return;
@@ -42,7 +42,7 @@ export default new Event({
 
     if (!instanceId || !playerName) {
       await interaction.editReply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
       });
 
       return;
@@ -50,7 +50,7 @@ export default new Event({
 
     if (!isValidMinecraftUsername(playerName)) {
       await interaction.editReply({
-        content: "Invalid Minecraft username.",
+        content: "Nieprawidłowa nazwa użytkownika Minecraft.",
       });
 
       return;
@@ -60,7 +60,7 @@ export default new Event({
 
     if (response === Response.InvalidRequest) {
       await interaction.editReply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
       });
 
       warn(`Invalid request when collecting reward.`);
@@ -75,10 +75,10 @@ export default new Event({
       guildId: interaction.guildId,
     });
 
-    const collectedDefault = { content: "You have claimed your reward!" };
-    const cooldownDefault = { content: "Cooldown is active!" };
-    const offlineDefault = { content: "The provided player is offline." };
-    const disabledDefault = { content: "This feature is disabled." };
+    const collectedDefault = { content: "Odebrałeś swoją nagrodę!" };
+    const cooldownDefault = { content: "Aktywny jest cooldown!" };
+    const offlineDefault = { content: "Podany gracz jest offline." };
+    const disabledDefault = { content: "Ta funkcja jest wyłączona." };
 
     const collected = result ? (result.collected ? JSON.parse(result.collected) : collectedDefault) : collectedDefault;
     const cooldown = result ? (result.cooldown ? JSON.parse(result.cooldown) : cooldownDefault) : cooldownDefault;
@@ -110,7 +110,7 @@ export default new Event({
     }
 
     await interaction.editReply({
-      content: "An error has occurred. Contact an administrator for more information.",
+      content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
     });
   },
 });

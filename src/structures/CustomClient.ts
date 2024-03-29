@@ -43,7 +43,7 @@ export class CustomClient extends Client {
 
       if (interaction) {
         await interaction.editReply({
-          content: "Invalid token/intents provided for custom client.",
+          content: "Nieprawidłowy token/intencje ustawione dla niestandardowego klienta.",
         });
 
         return false;

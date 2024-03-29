@@ -47,6 +47,6 @@ export type BoostRewardMessages = {
   }[];
 };
 
-const name = "discord-reward-messages";
+const name = "boost-reward-messages";
 
 export default models[name] || model(name, boostRewardMessagesSchema, name);

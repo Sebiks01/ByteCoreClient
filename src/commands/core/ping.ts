@@ -8,7 +8,7 @@ export default new Command({
 
   execute: async ({ interaction, client }) => {
     const reply = await interaction.reply({
-      content: `Fetching data...`,
+      content: `Pobieranie danych...`,
       ephemeral: true,
     });
 
@@ -17,10 +17,8 @@ export default new Command({
     const latency = reply.createdTimestamp - interaction.createdTimestamp;
     const wsLatency = client.ws.ping;
 
-    
-
     await interaction.followUp({
-      content: `🏓 Latency: ${latency}ms. API Latency: ${wsLatency}ms.`,
+      content: `🏓 Opóźnienie: ${latency}ms. Opóźnienie API: ${wsLatency}ms.`,
       ephemeral: true,
     });
   },

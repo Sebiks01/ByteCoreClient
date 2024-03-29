@@ -22,7 +22,7 @@ export default new Event({
 
       if (interaction.isChatInputCommand()) {
         await interaction.reply({
-          content: "This command is outdated.",
+          content: "Ta komenda jest przestarzała.",
           ephemeral: true,
         });
 

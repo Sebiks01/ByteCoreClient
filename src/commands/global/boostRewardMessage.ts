@@ -96,7 +96,7 @@ export default new Command({
 
   execute: async ({ interaction, args, client }) => {
     if (!interaction.guild) {
-      return await interaction.reply({ content: "This command can only be used in a server." });
+      return await interaction.reply({ content: "Ta komenda jest dostępna tylko na serwerze." });
     }
 
     await interaction.deferReply({ ephemeral: true });
@@ -119,9 +119,9 @@ export default new Command({
           sentMessage = await channel.send({
             embeds: [
               new EmbedBuilder()
-                .setTitle("ByteCore - Boost Reward")
+                .setTitle("ByteCore - Nagroda za boost")
                 .setDescription(
-                  "- To claim your boost reward choose a server below and fill out the form. \n- Make sure to be present on the server."
+                  "- Aby odebrać nagrodę za boost, wybierz serwer poniżej i wypełnij formularz. \n- Upewnij się, że jesteś obecny na serwerze."
                 )
                 .setColor(0x5512ff)
                 .setFooter({
@@ -139,7 +139,7 @@ export default new Command({
         }
       } catch {
         return await interaction.editReply({
-          content: "Incorrect message format. Use [discohook.org](https://discohook.org/) to generate JSON.",
+          content: "Niepoprawny format wiadomości. Użyj [discohook.org](https://discohook.org/) do generowania JSON.",
         });
       }
 
@@ -150,7 +150,7 @@ export default new Command({
       );
 
       return await interaction.editReply({
-        content: "Message sent successfully.",
+        content: "Wiadomość wysłana pomyślnie.",
       });
     }
 
@@ -160,9 +160,9 @@ export default new Command({
       const style = args.getString("style") as "Primary" | "Secondary" | "Success" | "Danger";
       const label = args.getString("label") as string;
       const emoji = args.getString("emoji");
-      const modalTitle = args.getString("modal-title") || "ByteCore - Discord Reward";
-      const modalLabel = args.getString("modal-label") || "Player name";
-      const modalPlaceholder = args.getString("modal-placeholder") || "Type your name here...";
+      const modalTitle = args.getString("modal-title") || "ByteCore - Nagroda za boost";
+      const modalLabel = args.getString("modal-label") || "Nick na serwerze";
+      const modalPlaceholder = args.getString("modal-placeholder") || "Wpisz swój nick na serwerze";
 
       const rewardMessage = await boostRewardMessagesSchema.findOne({
         token: client.token,
@@ -170,27 +170,27 @@ export default new Command({
       });
 
       if (!rewardMessage) {
-        return await interaction.editReply({ content: "No reward message found." });
+        return await interaction.editReply({ content: "Nie znaleziono wiadomości z nagrodą." });
       }
 
       const attachedByteCoreInstances = (rewardMessage as BoostRewardMessages).attachedByteCoreInstances;
 
       if (attachedByteCoreInstances.length == 25) {
-        return await interaction.editReply({ content: "You can only attach 25 instances." });
+        return await interaction.editReply({ content: "Możesz dołączyć tylko 25 instancji." });
       }
 
       const userBot = await userBotsSchema.findOne({ token: client.token });
 
       if (!userBot) {
-        return await interaction.editReply({ content: "Internal error." });
+        return await interaction.editReply({ content: "Wewnętrzny błąd." });
       }
 
       if (!(userBot as UserBots).attachedInstances?.includes(instanceId)) {
-        return await interaction.editReply({ content: "Instance not verified." });
+        return await interaction.editReply({ content: "Instancja niezweryfikowana." });
       }
 
       if (attachedByteCoreInstances.find((instance) => instance.instanceId === instanceId)) {
-        return await interaction.editReply({ content: "Instance already attached." });
+        return await interaction.editReply({ content: "Instancja jest już dołączona." });
       }
 
       attachedByteCoreInstances.push({
@@ -208,13 +208,13 @@ export default new Command({
       const channel = await interaction.guild.channels.fetch(rewardMessage.channelId);
 
       if (!channel) {
-        return await interaction.editReply({ content: "Channel not found." });
+        return await interaction.editReply({ content: "Kanał nie został znaleziony." });
       }
 
       const message = await (channel as GuildTextBasedChannel).messages.fetch(rewardMessage.messageId);
 
       if (!message) {
-        return await interaction.editReply({ content: "Message not found." });
+        return await interaction.editReply({ content: "Wiadomość nie została znaleziona." });
       }
 
       const components = [];
@@ -250,7 +250,7 @@ export default new Command({
         { attachedByteCoreInstances }
       );
 
-      return await interaction.editReply({ content: "Instance attached successfully." });
+      return await interaction.editReply({ content: "Instancja została pomyślnie dołączona." });
     }
 
     if (subcommand === "remove") {
@@ -260,13 +260,13 @@ export default new Command({
       });
 
       if (!rewardMessage) {
-        return await interaction.editReply({ content: "No reward message found." });
+        return await interaction.editReply({ content: "Nie znaleziono wiadomości z nagrodą." });
       }
 
       const attachedByteCoreInstances = (rewardMessage as BoostRewardMessages).attachedByteCoreInstances;
 
       if (!attachedByteCoreInstances.find((instance) => instance.instanceId === instanceId)) {
-        return await interaction.editReply({ content: "Instance not attached." });
+        return await interaction.editReply({ content: "Instancja nie jest dołączona." });
       }
 
       const filtered = attachedByteCoreInstances.filter((instance) => instance.instanceId !== instanceId);
@@ -274,13 +274,13 @@ export default new Command({
       const channel = await interaction.guild.channels.fetch(rewardMessage.channelId);
 
       if (!channel) {
-        return await interaction.editReply({ content: "Channel not found." });
+        return await interaction.editReply({ content: "Kanał nie został znaleziony." });
       }
 
       const message = await (channel as GuildTextBasedChannel).messages.fetch(rewardMessage.messageId);
 
       if (!message) {
-        return await interaction.editReply({ content: "Message not found." });
+        return await interaction.editReply({ content: "Wiadomość nie została znaleziona." });
       }
 
       const components = [];
@@ -318,7 +318,7 @@ export default new Command({
         }
       );
 
-      return await interaction.editReply({ content: "Instance removed successfully." });
+      return await interaction.editReply({ content: "Instancja została pomyślnie usunięta." });
     }
   },
 

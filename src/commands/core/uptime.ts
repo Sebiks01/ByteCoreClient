@@ -11,7 +11,7 @@ export default new Command({
     const uptime = msToTime(client.uptime || 0);
 
     await interaction.reply({
-      content: `🕐 Uptime: ${uptime.length != 0 ? uptime : "-"}.`,
+      content: `🕐 Czas pracy: ${uptime.length != 0 ? uptime : "-"}.`,
       ephemeral: true,
     });
   },

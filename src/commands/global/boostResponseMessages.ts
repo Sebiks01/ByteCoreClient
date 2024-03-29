@@ -65,7 +65,7 @@ export default new Command({
         JSON.parse(message);
       } catch (err) {
         return await interaction.editReply({
-          content: "Incorrect message format. Use [discohook.org](https://discohook.org/) to generate JSON.",
+          content: "Niepoprawny format. Użyj [discohook.org](https://discohook.org/) aby wygenerować JSON.",
         });
       }
 
@@ -76,7 +76,7 @@ export default new Command({
       );
 
       return await interaction.editReply({
-        content: `Successfully set the ${args.getString("message-type")} message.`,
+        content: `Pomyślnie ustawiono wiadomość "${args.getString("message-type")}".`,
       });
     }
 
@@ -90,7 +90,7 @@ export default new Command({
       );
 
       return await interaction.editReply({
-        content: `Successfully reset the ${args.getString("message-type")} message.`,
+        content: `Pomyślnie zresetowano wiadomość "${args.getString("message-type")}".`,
       });
     }
 
@@ -98,7 +98,7 @@ export default new Command({
       await boostResponseMessagesSchema.deleteOne({ token: client.token, guildId: interaction.guildId });
 
       return await interaction.editReply({
-        content: `Successfully reset all custom messages.`,
+        content: `Pomyślnie zresetowano wszystkie wiadomości.`,
       });
     }
   },

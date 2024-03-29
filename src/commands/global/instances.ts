@@ -35,7 +35,7 @@ export default new Command({
 
   execute: async ({ interaction, args, client }) => {
     if (!interaction.guild) {
-      return await interaction.reply({ content: "This command can only be used in a server." });
+      return await interaction.reply({ content: "To komenda może być używana tylko na serwerze." });
     }
 
     const subcommand = args.getSubcommand();
@@ -46,34 +46,34 @@ export default new Command({
 
     if (!customClientSettings) {
       return await interaction.reply({
-        content: "Database error. Data missing. Contact an administrator.",
+        content: "Błąd bazy danych. Brakuje danych. Skontaktuj się z administratorem.",
         ephemeral: true,
       });
     }
 
     if (subcommand === "attach") {
       if (customClientSettings?.attachedInstances?.includes(instanceId)) {
-        return await interaction.reply({ content: "Instance already attached.", ephemeral: true });
+        return await interaction.reply({ content: "Instancja jest już dołączona.", ephemeral: true });
       }
 
       const userBot = await userBotsSchema.findOne({ attachedInstances: instanceId });
 
       if (userBot) {
-        return await interaction.reply({ content: "Instance already attached to another bot.", ephemeral: true });
+        return await interaction.reply({ content: "Instancja jest już dołączona do innego bota.", ephemeral: true });
       }
 
       const linkCode = await api.system.linkInstance(instanceId, client.user?.username || " ");
 
       const linkModal = new ModalBuilder()
         .setCustomId(`bytecore-linkInstance_${instanceId}_${linkCode}`)
-        .setTitle("Linking Instance")
+        .setTitle("Weryfikacja Instancji")
         .addComponents(
           new ActionRowBuilder<TextInputBuilder>().setComponents(
             new TextInputBuilder()
               .setCustomId("input1")
               .setStyle(TextInputStyle.Short)
-              .setLabel("Link Code")
-              .setPlaceholder("Paste the link code here")
+              .setLabel("Kod")
+              .setPlaceholder("Wklej tutaj kod weryfikacji")
               .setRequired(true)
           )
         );
@@ -83,12 +83,12 @@ export default new Command({
 
     if (subcommand === "detach") {
       if (!customClientSettings?.attachedInstances?.includes(instanceId)) {
-        return await interaction.reply({ content: "Instance not attached.", ephemeral: true });
+        return await interaction.reply({ content: "Instancja nie jest dołączona.", ephemeral: true });
       }
 
       await userBotsSchema.updateOne({ token: client.token }, { $pull: { attachedInstances: instanceId } });
 
-      return await interaction.reply({ content: "Instance detached successfully.", ephemeral: true });
+      return await interaction.reply({ content: "Instancja została pomyślnie odłączona.", ephemeral: true });
     }
   },
 

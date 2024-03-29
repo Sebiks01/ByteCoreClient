@@ -72,7 +72,7 @@ export default new Command({
       client.customClients.set(name, customClient);
 
       return await interaction.editReply({
-        content: "Created bot instance.",
+        content: "Utworzono instancję bota.",
       });
     }
 
@@ -85,14 +85,14 @@ export default new Command({
 
       if (!result) {
         return await interaction.editReply({
-          content: "Bot instance not found.",
+          content: "Instancja bota nie została znaleziona.",
         });
       }
 
       client.customClients.delete(name);
 
       return await interaction.editReply({
-        content: "Deleted bot instance.",
+        content: "Usunięto instancję bota.",
       });
     }
 
@@ -101,20 +101,20 @@ export default new Command({
 
       const runningCustomClients = customClients.filter((customClient) => customClient.running);
 
-      let description = `**Loaded:** ${customClients.size} |  **Running:** ${runningCustomClients.size}\n`;
+      let description = `**Załadowanych:** ${customClients.size} |  **Odpalonych:** ${runningCustomClients.size}\n`;
 
       for (let i = 0; i < 5 && i < customClients.size; i++) {
-        description += `\`\`\`\nName: ${customClients.at(i)?.name}\nToken: ${customClients.at(i)?.token}\nRunning: ${
+        description += `\`\`\`\nNazwa: ${customClients.at(i)?.name}\nToken: ${customClients.at(i)?.token}\nOdpalony: ${
           customClients.at(i)?.running
         }\n\`\`\``;
       }
 
       const embed = new EmbedBuilder()
-        .setTitle("Custom Bots List")
+        .setTitle("Lista Niestandardowych Botów")
         .setDescription(description)
         .setColor(16121600)
         .setFooter({
-          text: `ByteCore@2023`,
+          text: `ByteCore@2024`,
           iconURL: client.user?.displayAvatarURL(),
         });
 

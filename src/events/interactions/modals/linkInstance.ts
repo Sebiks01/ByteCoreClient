@@ -19,7 +19,7 @@ export default new Event({
 
     if (!instanceId || !linkCode || !inputtedCode) {
       await interaction.editReply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
       });
 
       return;
@@ -27,7 +27,7 @@ export default new Event({
 
     if (inputtedCode !== linkCode) {
       await interaction.editReply({
-        content: "Invalid link code.",
+        content: "Nieprawdiłowy kod weryfikacji. Spróbuj ponownie.",
       });
 
       return;
@@ -35,6 +35,6 @@ export default new Event({
 
     await userBotsSchema.updateOne({ token: client.token }, { $push: { attachedInstances: instanceId } });
 
-    await interaction.editReply({ content: "Instance attached successfully." });
+    await interaction.editReply({ content: "Instancja została pomyślnie dołączona." });
   },
 });

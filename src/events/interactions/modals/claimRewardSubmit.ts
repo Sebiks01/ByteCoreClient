@@ -2,7 +2,7 @@ import { Events } from "discord.js";
 
 import { Event } from "../../../structures/Event";
 import { warn, debug } from "../../../util/logger";
-import { Response, ColllectRewardResponse } from "../../../typings/api";
+import { Response, CollectRewardResponse } from "../../../typings/api";
 import rewardResponseMessagesSchema, { RewardResponseMessages } from "../../../models/reward-response-messages";
 
 const usernamePattern = /^[a-zA-Z0-9_]{3,16}$/;
@@ -24,7 +24,7 @@ export default new Event({
 
     if (!instanceId || !playerName) {
       await interaction.editReply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
       });
 
       return;
@@ -32,7 +32,7 @@ export default new Event({
 
     if (!isValidMinecraftUsername(playerName)) {
       await interaction.editReply({
-        content: "Invalid Minecraft username.",
+        content: "Nieprawidłowa nazwa użytkownika Minecraft.",
       });
 
       return;
@@ -42,7 +42,7 @@ export default new Event({
 
     if (response === Response.InvalidRequest) {
       await interaction.editReply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
       });
 
       warn(`Invalid request when collecting reward.`);
@@ -57,9 +57,9 @@ export default new Event({
       guildId: interaction.guildId,
     });
 
-    const collectedDefault = { content: "You have claimed your reward!" };
-    const alreadyCollectedDefault = { content: "You have already claimed your reward!" };
-    const offlineDefault = { content: "The provided player is offline." };
+    const collectedDefault = { content: "Odebrałeś swoją nagrodę!" };
+    const alreadyCollectedDefault = { content: "Już odebrałeś swoją nagrodę!" };
+    const offlineDefault = { content: "Podany gracz jest offline." };
 
     const collected = result ? (result.collected ? JSON.parse(result.collected) : collectedDefault) : collectedDefault;
     const alreadyCollected = result
@@ -69,26 +69,26 @@ export default new Event({
       : alreadyCollectedDefault;
     const offline = result ? (result.offline ? JSON.parse(result.offline) : offlineDefault) : offlineDefault;
 
-    if (response === ColllectRewardResponse.Collected) {
+    if (response === CollectRewardResponse.Collected) {
       await interaction.editReply(collected);
 
       return;
     }
 
-    if (response === ColllectRewardResponse.AlreadyCollected) {
+    if (response === CollectRewardResponse.AlreadyCollected) {
       await interaction.editReply(alreadyCollected);
 
       return;
     }
 
-    if (response === ColllectRewardResponse.Offline) {
+    if (response === CollectRewardResponse.Offline) {
       await interaction.editReply(offline);
 
       return;
     }
 
     await interaction.editReply({
-      content: "An error has occurred. Contact an administrator for more information.",
+      content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
     });
   },
 });

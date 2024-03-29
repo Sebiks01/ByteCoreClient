@@ -18,7 +18,7 @@ export default new Event({
 
     if (!result) {
       await interaction.reply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
         ephemeral: true,
       });
 
@@ -33,7 +33,7 @@ export default new Event({
 
     if (!result || !instanceId || !instance) {
       await interaction.reply({
-        content: "An error has occurred. Contact an administrator for more information.",
+        content: "Wystąpił błąd. Skontaktuj się z administratorem, aby uzyskać więcej informacji.",
         ephemeral: true,
       });
 
