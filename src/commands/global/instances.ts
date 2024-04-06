@@ -8,13 +8,13 @@ import {
 } from "discord.js";
 
 import { Command } from "../../structures/Command";
-import userBotsSchema, { UserBots } from "../../models/user-bots";
+import attachedInstancesSchema, { AttachedInstances } from "../../models/attached-instances";
 import api from "../../api";
 
 export default new Command({
   data: new SlashCommandBuilder()
-    .setName("discord-reward")
-    .setDescription("Manages discord rewards.")
+    .setName("instances")
+    .setDescription("Manages attached instances.")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand((subcommand) =>
       subcommand
@@ -42,24 +42,17 @@ export default new Command({
 
     const instanceId = args.getString("instance-id") as string;
 
-    const customClientSettings: UserBots | null = await userBotsSchema.findOne({ token: client.token });
+    const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
+      guild: interaction.guildId,
+    });
 
-    if (!customClientSettings) {
-      return await interaction.reply({
-        content: "Błąd bazy danych. Brakuje danych. Skontaktuj się z administratorem.",
-        ephemeral: true,
-      });
+    if (!attachedInstances) {
+      await attachedInstancesSchema.create({ guild: interaction.guildId, attachedInstances: [] });
     }
 
     if (subcommand === "attach") {
-      if (customClientSettings?.attachedInstances?.includes(instanceId)) {
+      if (attachedInstances?.attachedInstances?.includes(instanceId)) {
         return await interaction.reply({ content: "Instancja jest już dołączona.", ephemeral: true });
-      }
-
-      const userBot = await userBotsSchema.findOne({ attachedInstances: instanceId });
-
-      if (userBot) {
-        return await interaction.reply({ content: "Instancja jest już dołączona do innego bota.", ephemeral: true });
       }
 
       const linkCode = await api.system.linkInstance(instanceId, client.user?.username || " ");
@@ -82,11 +75,14 @@ export default new Command({
     }
 
     if (subcommand === "detach") {
-      if (!customClientSettings?.attachedInstances?.includes(instanceId)) {
+      if (!attachedInstances?.attachedInstances?.includes(instanceId)) {
         return await interaction.reply({ content: "Instancja nie jest dołączona.", ephemeral: true });
       }
 
-      await userBotsSchema.updateOne({ token: client.token }, { $pull: { attachedInstances: instanceId } });
+      await attachedInstancesSchema.updateOne(
+        { guild: interaction.guildId },
+        { $pull: { attachedInstances: instanceId } }
+      );
 
       return await interaction.reply({ content: "Instancja została pomyślnie odłączona.", ephemeral: true });
     }
@@ -99,11 +95,13 @@ export default new Command({
     let choices: string[] = [];
 
     if (subCommand === "detach" && focusedOption.name === "instance-id") {
-      const customClientSettings: UserBots | null = await userBotsSchema.findOne({ token: client.token });
+      const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
+        guild: interaction.guildId,
+      });
 
-      if (!customClientSettings) return await interaction.respond([]);
+      if (!attachedInstances) return await interaction.respond([]);
 
-      choices = choices.concat(customClientSettings.attachedInstances || []);
+      choices = choices.concat(attachedInstances.attachedInstances || []);
     }
 
     const filtered = choices.filter((choice) => choice.startsWith(focusedOption.value));

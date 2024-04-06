@@ -13,7 +13,7 @@ import {
 
 import { Command } from "../../structures/Command";
 import boostRewardMessagesSchema, { BoostRewardMessages } from "../../models/boost-reward-messages";
-import userBotsSchema, { UserBots } from "../../models/user-bots";
+import attachedInstancesSchema, { AttachedInstances } from "../../models/attached-instances";
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -179,13 +179,13 @@ export default new Command({
         return await interaction.editReply({ content: "Możesz dołączyć tylko 25 instancji." });
       }
 
-      const userBot = await userBotsSchema.findOne({ token: client.token });
+      const attachedInstances = await attachedInstancesSchema.findOne({ guild: interaction.guildId });
 
-      if (!userBot) {
-        return await interaction.editReply({ content: "Wewnętrzny błąd." });
+      if (!attachedInstances) {
+        return await interaction.editReply({ content: "Instancja niezweryfikowana." });
       }
 
-      if (!(userBot as UserBots).attachedInstances?.includes(instanceId)) {
+      if (!(attachedInstances as AttachedInstances).attachedInstances?.includes(instanceId)) {
         return await interaction.editReply({ content: "Instancja niezweryfikowana." });
       }
 
@@ -333,16 +333,18 @@ export default new Command({
       guildId: interaction.guildId,
     });
 
-    const userBot: UserBots | null = await userBotsSchema.findOne({ token: client.token });
+    const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
+      guild: interaction.guildId,
+    });
 
     if (!rewardMessage) return await interaction.respond([]);
-    if (!userBot) return await interaction.respond([]);
+    if (!attachedInstances) return await interaction.respond([]);
 
     const attachedByteCoreInstances = (rewardMessage as BoostRewardMessages).attachedByteCoreInstances;
 
     if (subCommand === "add" && focusedOption.name === "instance-id") {
       choices = choices.concat(
-        userBot.attachedInstances?.filter(
+        attachedInstances.attachedInstances?.filter(
           (instance) => !attachedByteCoreInstances.map((instance) => instance.instanceId).includes(instance)
         ) || []
       );

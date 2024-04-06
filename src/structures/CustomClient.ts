@@ -132,7 +132,11 @@ export class CustomClient extends Client {
         continue;
       }
 
-      const message = await (channel as TextChannel).messages.fetch(discordRewardMessage.messageId);
+      let message;
+
+      try {
+        message = await (channel as TextChannel).messages.fetch(discordRewardMessage.messageId);
+      } catch {}
 
       if (!message) {
         await discordRewardMessagesSchema.deleteOne({ messageId: discordRewardMessage.messageId });
@@ -196,7 +200,11 @@ export class CustomClient extends Client {
         continue;
       }
 
-      const message = await (channel as TextChannel).messages.fetch(boostRewardMessage.messageId);
+      let message;
+
+      try {
+        message = await (channel as TextChannel).messages.fetch(boostRewardMessage.messageId);
+      } catch {}
 
       if (!message) {
         await boostRewardMessagesSchema.deleteOne({ messageId: boostRewardMessage.messageId });

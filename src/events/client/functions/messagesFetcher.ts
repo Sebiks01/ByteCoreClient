@@ -4,7 +4,7 @@ import { Event } from "../../../structures/Event";
 import { ByteCoreClient } from "../../../structures/ByteCoreClient";
 import { Response } from "../../../typings/api";
 import api from "../../../api";
-import userBotsSchema from "../../../models/user-bots";
+import attachedInstancesSchema, { AttachedInstances } from "../../../models/attached-instances";
 
 export default new Event({
   name: Events.ClientReady,
@@ -22,19 +22,28 @@ export default new Event({
           const channelId = message["channel-id"];
           const messageJson = JSON.parse(message["message-json"]);
 
-          const userBot = await userBotsSchema.findOne({ attachedInstances: coreId });
+          const attachedInstances: AttachedInstances[] = await attachedInstancesSchema.find({
+            attachedInstances: coreId,
+          });
 
-          if (!userBot) continue;
+          if (!attachedInstances) continue;
 
-          const customClient = client.customClients.find((c) => c.token === userBot.token);
+          for (const instance of attachedInstances) {
+            const customClient =
+              instance.token == client.token ? client : client.customClients.find((c) => c.token === instance.token);
 
-          if (!customClient) continue;
+            if (!customClient) continue;
 
-          const channel = await customClient.channels.fetch(channelId);
+            const guild = await client.guilds.fetch(instance.guild);
 
-          if (!channel || channel.type !== ChannelType.GuildText) continue;
+            if (!guild) continue;
 
-          await channel.send(messageJson);
+            const channel = await guild.channels.fetch(channelId);
+
+            if (!channel || channel.type !== ChannelType.GuildText) continue;
+
+            await channel.send(messageJson);
+          }
         }
       }
 

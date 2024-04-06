@@ -1,7 +1,7 @@
 import { Events } from "discord.js";
 
 import { Event } from "../../../structures/Event";
-import userBotsSchema from "../../../models/user-bots";
+import attachedInstancesSchema, { AttachedInstances } from "../../../models/attached-instances";
 
 export default new Event({
   name: Events.InteractionCreate,
@@ -33,7 +33,10 @@ export default new Event({
       return;
     }
 
-    await userBotsSchema.updateOne({ token: client.token }, { $push: { attachedInstances: instanceId } });
+    await attachedInstancesSchema.updateOne(
+      { token: client.token, guild: interaction.guildId },
+      { $push: { attachedInstances: instanceId } }
+    );
 
     await interaction.editReply({ content: "Instancja została pomyślnie dołączona." });
   },
