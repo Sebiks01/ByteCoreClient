@@ -16,6 +16,7 @@ import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/di
 import rewardResponseMessagesSchema, { RewardResponseMessages } from "../models/reward-response-messages";
 import boostRewardMessagesSchema, { BoostRewardMessages } from "../models/boost-reward-messages";
 import boostResponseMessagesSchema, { BoostResponseMessages } from "../models/boost-response-messages";
+import attachedInstancesSchema, { AttachedInstances } from "../models/attached-instances";
 import api from "../api";
 
 export class CustomClient extends Client {
@@ -174,8 +175,6 @@ export class CustomClient extends Client {
     debug(`Client: ${this._name} (${this.token})`);
     debug(`Validated ${rewardResponseMessagesCounter} reward response message(s).`);
 
-    // ---------------
-
     const boostRewardMessages: BoostRewardMessages[] = await boostRewardMessagesSchema.find({
       token: this.token,
     });
@@ -241,6 +240,31 @@ export class CustomClient extends Client {
 
     debug(`Client: ${this._name} (${this.token})`);
     debug(`Validated ${boostResponseMessagesCounter} boost response message(s).`);
+
+    const attachedInstances: AttachedInstances[] = await attachedInstancesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Found ${attachedInstances.length} guild(s) attached to this token.`);
+
+    let attachedInstancesCounter = 0;
+
+    for (const attachedInstance of attachedInstances) {
+      const guild = await this.guilds.fetch(attachedInstance.guild);
+
+      if (!guild) {
+        await attachedInstancesSchema.deleteOne({ token: this.token, guild: attachedInstance.guild });
+        debug(`Client: ${this._name} (${this.token})`);
+        debug(`Deleted attached instance to this token with guildID: "${attachedInstance.guild}".`);
+        continue;
+      }
+
+      attachedInstancesCounter++;
+    }
+
+    debug(`Client: ${this._name} (${this.token})`);
+    debug(`Validated ${attachedInstancesCounter} attached instances to this token.`);
   }
 
   public get name() {

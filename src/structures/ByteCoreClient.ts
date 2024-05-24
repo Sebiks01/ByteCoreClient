@@ -20,6 +20,7 @@ import discordRewardMessagesSchema, { DiscordRewardMessages } from "../models/di
 import rewardResponseMessagesSchema, { RewardResponseMessages } from "../models/reward-response-messages";
 import boostRewardMessagesSchema, { BoostRewardMessages } from "../models/boost-reward-messages";
 import boostResponseMessagesSchema, { BoostResponseMessages } from "../models/boost-response-messages";
+import attachedInstancesSchema, { AttachedInstances } from "../models/attached-instances";
 import api from "../api";
 
 const { Guilds, GuildMembers } = GatewayIntentBits;
@@ -372,6 +373,28 @@ export class ByteCoreClient extends Client {
     }
 
     debug(`Validated ${boostResponseMessagesCounter} boost response message(s).`);
+
+    const attachedInstances: AttachedInstances[] = await attachedInstancesSchema.find({
+      token: this.token,
+    });
+
+    debug(`Found ${attachedInstances.length} guild(s) attached to ByteCore.`);
+
+    let attachedInstancesCounter = 0;
+
+    for (const attachedInstance of attachedInstances) {
+      const guild = await this.guilds.fetch(attachedInstance.guild);
+
+      if (!guild) {
+        await attachedInstancesSchema.deleteOne({ token: this.token, guild: attachedInstance.guild });
+        debug(`Deleted attached instance to ByteCore with guildID: "${attachedInstance.guild}".`);
+        continue;
+      }
+
+      attachedInstancesCounter++;
+    }
+
+    debug(`Validated ${attachedInstancesCounter} attached instances to ByteCore.`);
 
     timerEnd("Validated database in");
   }
