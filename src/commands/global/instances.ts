@@ -44,10 +44,11 @@ export default new Command({
 
     const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
       guild: interaction.guildId,
+      token: client.token,
     });
 
     if (!attachedInstances) {
-      await attachedInstancesSchema.create({ guild: interaction.guildId, attachedInstances: [] });
+      await attachedInstancesSchema.create({ guild: interaction.guildId, token: client.token, attachedInstances: [] });
     }
 
     if (subcommand === "attach") {
@@ -80,7 +81,7 @@ export default new Command({
       }
 
       await attachedInstancesSchema.updateOne(
-        { guild: interaction.guildId },
+        { guild: interaction.guildId, token: client.token },
         { $pull: { attachedInstances: instanceId } }
       );
 
@@ -97,6 +98,7 @@ export default new Command({
     if (subCommand === "detach" && focusedOption.name === "instance-id") {
       const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
         guild: interaction.guildId,
+        token: client.token,
       });
 
       if (!attachedInstances) return await interaction.respond([]);

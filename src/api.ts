@@ -44,6 +44,7 @@ export default {
 
     collectBoostReward: async (
       byteCoreId: string,
+      userId: string,
       playerName: string
     ): Promise<CollectBoostRewardResponse | Response> => {
       debug(`Collecting boost reward for ${playerName} with byteCoreId ${byteCoreId}.`);
@@ -56,7 +57,7 @@ export default {
 
       const response = await request(
         RequestMethod.Get,
-        `/user/collectBoostReward/${process.env.API_TOKEN}/${byteCoreId}/${playerName}`
+        `/user/collectBoostReward/${process.env.API_TOKEN}/${byteCoreId}/${userId}/${playerName}`
       );
 
       if (!response || response.status !== 200) return Response.InvalidRequest;

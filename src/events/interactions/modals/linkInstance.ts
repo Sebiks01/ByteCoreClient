@@ -1,7 +1,7 @@
 import { Events } from "discord.js";
 
 import { Event } from "../../../structures/Event";
-import attachedInstancesSchema, { AttachedInstances } from "../../../models/attached-instances";
+import attachedInstancesSchema from "../../../models/attached-instances";
 
 export default new Event({
   name: Events.InteractionCreate,

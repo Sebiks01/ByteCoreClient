@@ -12,10 +12,10 @@ export default new Command({
   execute: async ({ interaction }) => {
     const toMigarte: DiscordRewardMessages[] = await discordRewardMessagesSchema.find();
 
+    await interaction.deferReply({ ephemeral: true });
+
     for (const data of toMigarte) {
       const { token, guildId, attachedByteCoreInstances } = data;
-
-      await interaction.deferReply({ ephemeral: true });
 
       info(`Migrating data for token: ${token}.`);
 
@@ -41,8 +41,8 @@ export default new Command({
       await attachedInstancesSchema.updateOne({ guild: guildId, token }, { attachedInstances: migrated });
 
       success(`Migration successful for token: ${token}.`);
-
-      await interaction.editReply({ content: "Migration successful." });
     }
+
+    await interaction.editReply({ content: "Migration successful." });
   },
 });

@@ -56,7 +56,7 @@ export default new Event({
       return;
     }
 
-    const response = await client.api.user.collectBoostReward(instanceId, playerName);
+    const response = await client.api.user.collectBoostReward(instanceId, interaction.user.id, playerName);
 
     if (response === Response.InvalidRequest) {
       await interaction.editReply({
@@ -65,6 +65,7 @@ export default new Event({
 
       warn(`Invalid request when collecting reward.`);
       debug(`Instance ID: ${instanceId}`);
+      debug(`User ID: ${interaction.user.id}`);
       debug(`Player name: ${playerName}`);
 
       return;
