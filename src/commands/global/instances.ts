@@ -42,20 +42,7 @@ export default new Command({
 
     const instanceId = args.getString("instance-id") as string;
 
-    const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
-      guild: interaction.guildId,
-      token: client.token,
-    });
-
-    if (!attachedInstances) {
-      await attachedInstancesSchema.create({ guild: interaction.guildId, token: client.token, attachedInstances: [] });
-    }
-
     if (subcommand === "attach") {
-      if (attachedInstances?.attachedInstances?.includes(instanceId)) {
-        return await interaction.reply({ content: "Instancja jest już dołączona.", ephemeral: true });
-      }
-
       const linkCode = await api.system.linkInstance(instanceId, client.user?.username || " ");
 
       const linkModal = new ModalBuilder()
@@ -76,8 +63,23 @@ export default new Command({
     }
 
     if (subcommand === "detach") {
+      await interaction.deferReply({ ephemeral: true });
+
+      const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
+        guild: interaction.guildId,
+        token: client.token,
+      });
+
+      if (!attachedInstances) {
+        await attachedInstancesSchema.create({
+          guild: interaction.guildId,
+          token: client.token,
+          attachedInstances: [],
+        });
+      }
+
       if (!attachedInstances?.attachedInstances?.includes(instanceId)) {
-        return await interaction.reply({ content: "Instancja nie jest dołączona.", ephemeral: true });
+        return await interaction.editReply({ content: "Instancja nie jest dołączona." });
       }
 
       await attachedInstancesSchema.updateOne(
@@ -85,7 +87,7 @@ export default new Command({
         { $pull: { attachedInstances: instanceId } }
       );
 
-      return await interaction.reply({ content: "Instancja została pomyślnie odłączona.", ephemeral: true });
+      return await interaction.editReply({ content: "Instancja została pomyślnie odłączona." });
     }
   },
 

@@ -1,7 +1,7 @@
 import { Events } from "discord.js";
 
 import { Event } from "../../../structures/Event";
-import attachedInstancesSchema from "../../../models/attached-instances";
+import attachedInstancesSchema, { AttachedInstances } from "../../../models/attached-instances";
 
 export default new Event({
   name: Events.InteractionCreate,
@@ -29,6 +29,21 @@ export default new Event({
       await interaction.editReply({
         content: "Nieprawdiłowy kod weryfikacji. Spróbuj ponownie.",
       });
+
+      return;
+    }
+
+    const attachedInstances: AttachedInstances | null = await attachedInstancesSchema.findOne({
+      guild: interaction.guildId,
+      token: client.token,
+    });
+
+    if (!attachedInstances) {
+      await attachedInstancesSchema.create({ guild: interaction.guildId, token: client.token, attachedInstances: [] });
+    }
+
+    if (attachedInstances?.attachedInstances?.includes(instanceId)) {
+      await interaction.editReply({ content: "Instancja jest już dołączona." });
 
       return;
     }

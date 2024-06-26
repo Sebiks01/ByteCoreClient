@@ -119,7 +119,11 @@ export class CustomClient extends Client {
     let discordRewardMessageCounter = 0;
 
     for (const discordRewardMessage of discordRewardMessages) {
-      const guild = await this.guilds.fetch(discordRewardMessage.guildId);
+      let guild = null;
+
+      try {
+        guild = await this.guilds.fetch(discordRewardMessage.guildId);
+      } catch {}
 
       if (!guild) {
         await discordRewardMessagesSchema.deleteOne({ guildId: discordRewardMessage.guildId });
@@ -160,7 +164,11 @@ export class CustomClient extends Client {
     let rewardResponseMessagesCounter = 0;
 
     for (const rewardResponseMessage of rewardResponseMessages) {
-      const guild = await this.guilds.fetch(rewardResponseMessage.guildId);
+      let guild = null;
+
+      try {
+        guild = await this.guilds.fetch(rewardResponseMessage.guildId);
+      } catch {}
 
       const { alreadyCollected, collected, offline } = rewardResponseMessage;
 
@@ -185,7 +193,11 @@ export class CustomClient extends Client {
     let boostRewardMessageCounter = 0;
 
     for (const boostRewardMessage of boostRewardMessages) {
-      const guild = await this.guilds.fetch(boostRewardMessage.guildId);
+      let guild = null;
+
+      try {
+        guild = await this.guilds.fetch(boostRewardMessage.guildId);
+      } catch {}
 
       if (!guild) {
         await boostRewardMessagesSchema.deleteOne({ guildId: boostRewardMessage.guildId });
@@ -226,7 +238,11 @@ export class CustomClient extends Client {
     let boostResponseMessagesCounter = 0;
 
     for (const boostResponseMessage of boostResponseMessages) {
-      const guild = await this.guilds.fetch(boostResponseMessage.guildId);
+      let guild = null;
+
+      try {
+        guild = await this.guilds.fetch(boostResponseMessage.guildId);
+      } catch {}
 
       const { cooldown, collected, offline, disabled } = boostResponseMessage;
 
@@ -251,7 +267,11 @@ export class CustomClient extends Client {
     let attachedInstancesCounter = 0;
 
     for (const attachedInstance of attachedInstances) {
-      const guild = await this.guilds.fetch(attachedInstance.guild);
+      let guild = null;
+
+      try {
+        guild = await this.guilds.fetch(attachedInstance.guild);
+      } catch {}
 
       if (!guild) {
         await attachedInstancesSchema.deleteOne({ token: this.token, guild: attachedInstance.guild });
