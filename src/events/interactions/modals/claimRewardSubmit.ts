@@ -38,7 +38,7 @@ export default new Event({
       return;
     }
 
-    const response = await client.api.user.collectReward(instanceId, playerName);
+    const response = await client.api.user.collectReward(instanceId, interaction.user.id, playerName);
 
     if (response === Response.InvalidRequest) {
       await interaction.editReply({
