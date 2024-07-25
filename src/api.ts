@@ -32,10 +32,23 @@ async function request(method: RequestMethod, url: string): Promise<any> {
 
 export default {
   user: {
-    collectReward: async (byteCoreId: string, playerName: string): Promise<CollectRewardResponse | Response> => {
+    collectReward: async (
+      byteCoreId: string,
+      userId: string,
+      playerName: string
+    ): Promise<CollectRewardResponse | Response> => {
       debug(`Collecting reward for ${playerName} with byteCoreId ${byteCoreId}.`);
 
-      const response = await request(RequestMethod.Get, `/user/collectReward/${byteCoreId}/${playerName}`);
+      if (!process.env.API_TOKEN) {
+        error("API_TOKEN is not set. Skipping request.");
+        debug(`API_TOKEN: ${process.env.API_URL}`);
+        return Response.InvalidRequest;
+      }
+
+      const response = await request(
+        RequestMethod.Get,
+        `/user/collectReward/${process.env.API_TOKEN}/${byteCoreId}/${userId}/${playerName}`
+      );
 
       if (!response || response.status !== 200) return Response.InvalidRequest;
 
