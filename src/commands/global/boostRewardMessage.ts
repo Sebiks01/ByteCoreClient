@@ -119,15 +119,11 @@ export default new Command({
           sentMessage = await channel.send({
             embeds: [
               new EmbedBuilder()
-                .setTitle("ByteCore - Nagroda za boost")
+                .setTitle("Nagroda za boost")
                 .setDescription(
                   "- Aby odebrać nagrodę za boost, wybierz serwer poniżej i wypełnij formularz. \n- Upewnij się, że jesteś obecny na serwerze."
                 )
                 .setColor(0x5512ff)
-                .setFooter({
-                  text: "ByteCore@2024",
-                  iconURL: "https://cdn.discordapp.com/icons/1112725777855819849/c659c424e678179688a452d39c9ae77d",
-                })
                 .toJSON(),
             ],
           });
@@ -160,7 +156,7 @@ export default new Command({
       const style = args.getString("style") as "Primary" | "Secondary" | "Success" | "Danger";
       const label = args.getString("label") as string;
       const emoji = args.getString("emoji");
-      const modalTitle = args.getString("modal-title") || "ByteCore - Nagroda za boost";
+      const modalTitle = args.getString("modal-title") || "Nagroda za boost";
       const modalLabel = args.getString("modal-label") || "Nick na serwerze";
       const modalPlaceholder = args.getString("modal-placeholder") || "Wpisz swój nick na serwerze";
 
